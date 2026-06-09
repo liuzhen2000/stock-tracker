@@ -164,6 +164,7 @@ for idx, stock in enumerate(data):
         # ─── 股票头部（手机友好）───
         be_color = "#00B050" if stock['break_even'] and stock['cost'] and stock['break_even'] <= stock['cost'] else "#FF0000"
         be_text = f"${stock['break_even']:.2f}" if stock['break_even'] else "-"
+        delta_text = f"({stock['break_even'] - stock['cost']:+.2f})" if stock['break_even'] and stock['cost'] else ""
         
         stock_header = f"""
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 0;">
@@ -171,7 +172,7 @@ for idx, stock in enumerate(data):
             <span style="font-size:12px;color:#555">{stock['description']}</span>
             <span style="font-size:14px;margin-left:auto"><b>成本</b> ${stock['cost']:.2f}</span>
             <span style="font-size:14px"><b>持仓</b> {stock['holding']:.2f} 股</span>
-            <span style="font-size:14px;color:{be_color}"><b>盈亏平衡</b> {be_text}</span>
+            <span style="font-size:14px;color:{be_color}"><b>盈亏平衡</b> {be_text} <span style="font-size:12px;color:{be_color}">{delta_text}</span></span>
         </div>
         """
         st.markdown(stock_header, unsafe_allow_html=True)
