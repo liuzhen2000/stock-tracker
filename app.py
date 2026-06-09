@@ -13,12 +13,12 @@ st.markdown("""
     .card-bg-1 { background: #2a2a2a !important; }
     .card-text-date { color: #aaa !important; }
     .card-text-label { color: #ccc !important; }
-    .card-text-default { color: #e0e0e0 !important; }
+    .card-text-default { color: #f0f0f0 !important; }
     .card-border { border-color: #444 !important; }
     .card-divider { border-top-color: #444 !important; }
     .sym-color { color: #80b3ff !important; }
     .desc-color { color: #bbb !important; }
-    .metric-color { color: #e0e0e0 !important; }
+    .metric-color { color: #ffffff !important; }
 }
 @media (prefers-color-scheme: light) {
     .card-bg-0 { background: #F7F9FC !important; }
