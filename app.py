@@ -1,6 +1,5 @@
 import json
 import os
-from datetime import datetime
 import streamlit as st
 
 st.set_page_config(page_title="持仓成本看板", layout="centered", page_icon="📈")
@@ -143,17 +142,21 @@ def load_data():
 
 st.title("📈 持仓成本看板")
 
-# 显示最后更新时间
-if os.path.exists(JSON_PATH):
-    mtime = os.path.getmtime(JSON_PATH)
-    update_time = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M")
-    st.caption(f"🔄 数据更新于 {update_time}")
-
+# 显示最后更新时间（取数据中最新交易日期）
 try:
     data = load_data()
 except Exception as e:
     st.error(f"加载数据失败：{e}")
     st.stop()
+
+# 取所有股票交易记录中最新的日期
+all_dates = []
+for stock in data:
+    for r in stock['records']:
+        all_dates.append(r['date'])
+if all_dates:
+    latest_date = max(all_dates)
+    st.caption(f"🔄 数据更新至 {latest_date}")
 
 st.markdown("### 📌 当前持仓")
 
