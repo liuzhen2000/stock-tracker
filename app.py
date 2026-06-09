@@ -36,7 +36,7 @@ def parse_date(date_str):
     return f"{parts[2]}-{parts[0].zfill(2)}-{parts[1].zfill(2)}"
 
 
-@st.cache_data
+@st.cache_data(ttl=0)
 def load_data():
     with open(JSON_PATH, 'r', encoding='utf-8') as f:
         data = json.load(f)
