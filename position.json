@@ -1,9 +1,20 @@
 {
   "FromDate": "12/09/2025",
   "ToDate": "06/09/2026",
-  "TotalTransactionsAmount": "$19,884.76",
+  "TotalTransactionsAmount": "$18,340.76",
   "TotalFeesAndCommAmount": "$0.57",
   "BrokerageTransactions": [
+    {
+      "Date": "06/09/2026",
+      "Action": "Buy",
+      "Symbol": "AVGO",
+      "Description": "BROADCOM INC",
+      "Quantity": "4",
+      "Price": "$386.00",
+      "Fees & Comm": "",
+      "Amount": "-$1,544.00",
+      "AcctgRuleCd": "2"
+    },
     {
       "Date": "06/09/2026",
       "Action": "Sell",
