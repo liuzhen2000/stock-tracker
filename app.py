@@ -8,30 +8,41 @@ st.set_page_config(page_title="持仓成本看板", layout="centered", page_icon
 # ─── 全局 CSS：亮色/暗色主题适配 ───
 st.markdown("""
 <style>
-@media (prefers-color-scheme: dark) {
-    .card-bg-0 { background: #1e1e1e !important; }
-    .card-bg-1 { background: #2a2a2a !important; }
-    .card-text-date { color: #aaa !important; }
-    .card-text-label { color: #ccc !important; }
-    .card-text-default { color: #f0f0f0 !important; }
-    .card-border { border-color: #444 !important; }
-    .card-divider { border-top-color: #444 !important; }
-    .sym-color { color: #80b3ff !important; }
-    .desc-color { color: #bbb !important; }
-    .metric-color { color: #ffffff !important; }
-}
-@media (prefers-color-scheme: light) {
-    .card-bg-0 { background: #F7F9FC !important; }
-    .card-bg-1 { background: white !important; }
-    .card-text-date { color: #666 !important; }
-    .card-text-label { color: #333 !important; }
-    .card-text-default { color: #000 !important; }
-    .card-border { border-color: #ddd !important; }
-    .card-divider { border-top-color: #eee !important; }
-    .sym-color { color: #1F4E79 !important; }
-    .desc-color { color: #555 !important; }
-    .metric-color { color: #000 !important; }
-}
+/* 暗色主题 */
+[data-theme="dark"] .card-bg-0 { background: #1e1e1e !important; }
+[data-theme="dark"] .card-bg-1 { background: #2a2a2a !important; }
+[data-theme="dark"] .card-text-date { color: #aaa !important; }
+[data-theme="dark"] .card-text-label { color: #ccc !important; }
+[data-theme="dark"] .card-text-default { color: #f0f0f0 !important; }
+[data-theme="dark"] .card-border { border-color: #444 !important; }
+[data-theme="dark"] .card-divider { border-top-color: #444 !important; }
+[data-theme="dark"] .sym-color { color: #6ab0ff !important; }
+[data-theme="dark"] .desc-color { color: #ccc !important; }
+[data-theme="dark"] .metric-color,
+[data-theme="dark"] .metric-color b { color: #ffffff !important; }
+
+/* 亮色主题 */
+[data-theme="light"] .card-bg-0 { background: #F7F9FC !important; }
+[data-theme="light"] .card-bg-1 { background: white !important; }
+[data-theme="light"] .card-text-date { color: #666 !important; }
+[data-theme="light"] .card-text-label { color: #333 !important; }
+[data-theme="light"] .card-text-default { color: #000 !important; }
+[data-theme="light"] .card-border { border-color: #ddd !important; }
+[data-theme="light"] .card-divider { border-top-color: #eee !important; }
+[data-theme="light"] .sym-color { color: #1F4E79 !important; }
+[data-theme="light"] .desc-color { color: #555 !important; }
+[data-theme="light"] .metric-color { color: #000 !important; }
+
+/* 默认（无data-theme时回退） */
+.card-bg-0 { background: #F7F9FC; }
+.card-bg-1 { background: white; }
+.sym-color { color: #1F4E79; }
+.metric-color { color: #000; }
+.desc-color { color: #555; }
+
+/* 盈亏标签 */
+.loss { color: #ef4444 !important; font-weight: bold; }
+.profit { color: #22c55e !important; font-weight: bold; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -232,7 +243,7 @@ for idx, stock in enumerate(data):
                                 padding-top:4px;border-top:1px dashed;">
                         <span class="card-text-default"><b>成本</b> ${r['cost']:.2f}</span>
                         <span class="card-text-default"><b>持仓</b> {r['holding']:.2f} 股</span>
-                        <span>{'<span style="color:' + ('#22c55e' if r["profit"]>=0 else "#ef4444") + ';font-weight:bold">盈亏 $' + f'{r["profit"]:.2f}' + '</span>' if r['profit'] is not None else '<span style="color:#999">-</span>'}</span>
+                        <span>{f'<span class="profit">盈亏 ${r["profit"]:.2f}</span>' if r['profit'] is not None and r['profit']>=0 else f'<span class="loss">盈亏 ${r["profit"]:.2f}</span>' if r['profit'] is not None else '<span style="color:#999">-</span>'}</span>
                     </div>
                 </div>
                 """
