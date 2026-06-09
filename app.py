@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import streamlit as st
 
 st.set_page_config(page_title="持仓成本看板", layout="centered", page_icon="📈")
@@ -144,7 +144,7 @@ def load_data():
 st.title("📈 持仓成本看板")
 
 # 显示网页生成时间
-now = datetime.now().strftime("%Y-%m-%d %H:%M")
+now = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M")
 st.caption(f"🔄 网页生成于 {now}")
 
 try:
