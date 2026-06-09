@@ -5,6 +5,36 @@ import streamlit as st
 
 st.set_page_config(page_title="持仓成本看板", layout="centered", page_icon="📈")
 
+# ─── 全局 CSS：亮色/暗色主题适配 ───
+st.markdown("""
+<style>
+@media (prefers-color-scheme: dark) {
+    .card-bg-0 { background: #1e1e1e !important; }
+    .card-bg-1 { background: #2a2a2a !important; }
+    .card-text-date { color: #aaa !important; }
+    .card-text-label { color: #ccc !important; }
+    .card-text-default { color: #e0e0e0 !important; }
+    .card-border { border-color: #444 !important; }
+    .card-divider { border-top-color: #444 !important; }
+    .sym-color { color: #80b3ff !important; }
+    .desc-color { color: #bbb !important; }
+    .metric-color { color: #e0e0e0 !important; }
+}
+@media (prefers-color-scheme: light) {
+    .card-bg-0 { background: #F7F9FC !important; }
+    .card-bg-1 { background: white !important; }
+    .card-text-date { color: #666 !important; }
+    .card-text-label { color: #333 !important; }
+    .card-text-default { color: #000 !important; }
+    .card-border { border-color: #ddd !important; }
+    .card-divider { border-top-color: #eee !important; }
+    .sym-color { color: #1F4E79 !important; }
+    .desc-color { color: #555 !important; }
+    .metric-color { color: #000 !important; }
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ─── 数据路径（相对路径，部署到云端也能用）───
 DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 JSON_PATH = os.path.join(DATA_DIR, "position.json")
@@ -168,10 +198,10 @@ for idx, stock in enumerate(data):
         
         stock_header = f"""
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 0;">
-            <span style="font-size:22px;font-weight:bold;color:#1F4E79">{stock['symbol']}</span>
-            <span style="font-size:12px;color:#555">{stock['description']}</span>
-            <span style="font-size:14px;margin-left:auto"><b>成本</b> ${stock['cost']:.2f}</span>
-            <span style="font-size:14px"><b>持仓</b> {stock['holding']:.2f} 股</span>
+            <span class="sym-color" style="font-size:22px;font-weight:bold;">{stock['symbol']}</span>
+            <span class="desc-color" style="font-size:12px">{stock['description']}</span>
+            <span class="metric-color" style="font-size:14px;margin-left:auto"><b>成本</b> ${stock['cost']:.2f}</span>
+            <span class="metric-color" style="font-size:14px"><b>持仓</b> {stock['holding']:.2f} 股</span>
             <span style="font-size:14px;color:{be_color}"><b>盈亏平衡</b> {be_text} <span style="font-size:12px;color:{be_color}">{delta_text}</span></span>
         </div>
         """
@@ -188,22 +218,21 @@ for idx, stock in enumerate(data):
                 
                 # 卡片容器
                 card_html = f"""
-                <div style="border:1px solid #ddd;border-radius:6px;padding:8px 10px;margin-bottom:6px;
-                            background:{'#F7F9FC' if i%2==0 else 'white'}">
+                <div class="card-border {'card-bg-0' if i%2==0 else 'card-bg-1'}" style="border:1px solid;border-radius:6px;padding:8px 10px;margin-bottom:6px;">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                        <span style="font-size:13px;color:#666">{r['date']}</span>
+                        <span class="card-text-date" style="font-size:13px">{r['date']}</span>
                         <span style="background:{action_bg};color:{action_color};font-weight:bold;font-size:13px;
                                     padding:2px 10px;border-radius:4px">{r['action']}</span>
                     </div>
                     <div style="display:flex;justify-content:space-between;font-size:14px;">
-                        <span><b>{r['qty']:.2f}</b> 股 × <b>${r['price']:.2f}</b></span>
-                        <span>手续费: {f'${r["fee"]:.2f}' if r["fee"] else '-'}</span>
+                        <span class="card-text-default"><b>{r['qty']:.2f}</b> 股 × <b>${r['price']:.2f}</b></span>
+                        <span class="card-text-default">手续费: {f'${r["fee"]:.2f}' if r["fee"] else '-'}</span>
                     </div>
-                    <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px;
-                                padding-top:4px;border-top:1px dashed #eee;">
-                        <span><b>成本</b> ${r['cost']:.2f}</span>
-                        <span><b>持仓</b> {r['holding']:.2f} 股</span>
-                        <span>{'<span style="color:' + ('#006100' if r["profit"]>=0 else "#9C0006") + ';font-weight:bold">盈亏 $' + f'{r["profit"]:.2f}' + '</span>' if r['profit'] is not None else '<span style="color:#999">-</span>'}</span>
+                    <div class="card-divider" style="display:flex;justify-content:space-between;font-size:13px;margin-top:4px;
+                                padding-top:4px;border-top:1px dashed;">
+                        <span class="card-text-default"><b>成本</b> ${r['cost']:.2f}</span>
+                        <span class="card-text-default"><b>持仓</b> {r['holding']:.2f} 股</span>
+                        <span>{'<span style="color:' + ('#22c55e' if r["profit"]>=0 else "#ef4444") + ';font-weight:bold">盈亏 $' + f'{r["profit"]:.2f}' + '</span>' if r['profit'] is not None else '<span style="color:#999">-</span>'}</span>
                     </div>
                 </div>
                 """
