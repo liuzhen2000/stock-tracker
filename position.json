@@ -1,9 +1,31 @@
 {
-  "FromDate": "12/06/2025",
-  "ToDate": "06/06/2026",
-  "TotalTransactionsAmount": "$17,505.20",
-  "TotalFeesAndCommAmount": "$0.50",
+  "FromDate": "12/09/2025",
+  "ToDate": "06/09/2026",
+  "TotalTransactionsAmount": "$19,884.76",
+  "TotalFeesAndCommAmount": "$0.57",
   "BrokerageTransactions": [
+    {
+      "Date": "06/09/2026",
+      "Action": "Sell",
+      "Symbol": "MCD",
+      "Description": "MCDONALDS CORP",
+      "Quantity": "7",
+      "Price": "$281.00",
+      "Fees & Comm": "$0.04",
+      "Amount": "$1,966.96",
+      "AcctgRuleCd": "2"
+    },
+    {
+      "Date": "06/08/2026",
+      "Action": "Sell",
+      "Symbol": "AVGO",
+      "Description": "BROADCOM INC",
+      "Quantity": "4",
+      "Price": "$399.00",
+      "Fees & Comm": "$0.03",
+      "Amount": "$1,595.97",
+      "AcctgRuleCd": "2"
+    },
     {
       "Date": "06/05/2026",
       "Action": "Buy",
@@ -2007,17 +2029,6 @@
       "AcctgRuleCd": "2"
     },
     {
-      "Date": "06/08/2026",
-      "Action": "Sell",
-      "Symbol": "AVGO",
-      "Description": "BROADCOM INC",
-      "Quantity": "4",
-      "Price": "$399.00",
-      "Fees & Comm": "$0.03",
-      "Amount": "$1,595.97",
-      "AcctgRuleCd": "2"
-    },
-    {
       "Date": "12/18/2025 as of 12/17/2025",
       "Action": "Wire Received",
       "Symbol": "",
@@ -2378,61 +2389,6 @@
       "Price": "$227.23",
       "Fees & Comm": "",
       "Amount": "-$25.00",
-      "AcctgRuleCd": "2"
-    },
-    {
-      "Date": "12/08/2025",
-      "Action": "Wire Received",
-      "Symbol": "",
-      "Description": "FOREIGN CURRENCY DEPOSIT",
-      "Quantity": "",
-      "Price": "",
-      "Fees & Comm": "",
-      "Amount": "$1,283.29",
-      "AcctgRuleCd": "1"
-    },
-    {
-      "Date": "12/08/2025",
-      "Action": "Buy",
-      "Symbol": "META",
-      "Description": "META PLATFORMS INC CLASS A",
-      "Quantity": "0.0372",
-      "Price": "$671.12",
-      "Fees & Comm": "",
-      "Amount": "-$24.97",
-      "AcctgRuleCd": "2"
-    },
-    {
-      "Date": "12/08/2025",
-      "Action": "Buy",
-      "Symbol": "NVDA",
-      "Description": "NVIDIA CORP",
-      "Quantity": "0.1347",
-      "Price": "$185.5299",
-      "Fees & Comm": "",
-      "Amount": "-$24.99",
-      "AcctgRuleCd": "2"
-    },
-    {
-      "Date": "12/08/2025",
-      "Action": "Buy",
-      "Symbol": "MSFT",
-      "Description": "MICROSOFT CORP",
-      "Quantity": "0.0513",
-      "Price": "$486.7588",
-      "Fees & Comm": "",
-      "Amount": "-$24.97",
-      "AcctgRuleCd": "2"
-    },
-    {
-      "Date": "12/08/2025",
-      "Action": "Buy",
-      "Symbol": "AMZN",
-      "Description": "AMAZON.COM INC",
-      "Quantity": "0.1089",
-      "Price": "$229.47",
-      "Fees & Comm": "",
-      "Amount": "-$24.99",
       "AcctgRuleCd": "2"
     }
   ]
