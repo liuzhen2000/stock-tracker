@@ -214,7 +214,7 @@ def create_stock_worksheet(ws, stock_name, transactions):
     # 第8行：盈亏平衡点 = 持仓成本 - 当前周期累计卖出盈亏 ÷ 当前持仓
     # 反转后，第10行为最新交易，持有最终累计结果
     ws.merge_cells('A8:H8')
-    ws['A8'] = f'=IF(COUNTA(B10:B104)=0,"","⚖️ 盈亏平衡点: $"&TEXT(G10-I10/H10,"#,##0.00"))'
+    ws['A8'] = f'=IF(COUNTA(B10:B104)=0,"","⚖️ 盈亏平衡点: $"&TEXT(G10-IFERROR(I10/H10,0),"#,##0.00")&"  (差价: $"&TEXT(-IFERROR(I10/H10,0),"#,##0.00")&")")'
     ws['A8'].font = Font(bold=True, size=12, color="1F4E79")
     ws['A8'].alignment = Alignment(horizontal='center', vertical='center')
     ws['A8'].fill = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
