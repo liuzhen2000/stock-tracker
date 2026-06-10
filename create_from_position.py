@@ -62,7 +62,9 @@ def parse_date(date_str):
 
 
 def create_stock_worksheet(ws, stock_name, transactions):
-    """创建单个股票持仓记录工作表，使用实际交易数据"""
+    """创建单个股票持仓记录工作表，最新日期排在最上"""
+    trans_count = len(transactions)
+    last_data_row = 9 + trans_count  # 最旧交易所在行（基准行）
 
     # 设置列宽
     ws.column_dimensions['A'].width = 12
@@ -177,46 +179,50 @@ def create_stock_worksheet(ws, stock_name, transactions):
         Rule(type='expression', formula=['B10="卖出"'], dxf=red_dxf))
 
     # 为所有数据行（第10-104行）添加公式
+    # 注：数据已反转（最新在最上），公式用 next_row(row+1) 反向引用
     for row in range(10, 105):
-        prev_row = row - 1
+        next_row = row + 1
         # 盈亏金额公式（F列）- 处理清仓后无持仓时卖出不计算盈亏
         cell = ws.cell(row=row, column=6)
-        if row == 10:
+        if row == last_data_row:
             cell.value = f'=IF(B{row}="卖出",(D{row}-G{row})*C{row}-E{row},"")'
         else:
-            cell.value = f'=IF(B{row}="卖出",IF(H{prev_row}<=0,"",(D{row}-G{prev_row})*C{row}-E{row}),"")'
+            cell.value = f'=IF(B{row}="卖出",IF(H{next_row}<=0,"",(D{row}-G{next_row})*C{row}-E{row}),"")'
         cell.protection = Protection(locked=True)
         # 持仓成本公式（G列）
-        if row == 10:
+        if row == last_data_row:
             cell = ws.cell(row=row, column=7, value=f'=IF(B{row}="买入",(C{row}*D{row}+E{row})/C{row},"")')
         else:
             # 清仓后重新买入：用新买入价计算；有持仓时：加权平均；卖出时保持原成本
-            cell = ws.cell(row=row, column=7, value=f'=IF(B{row}="买入",IF(H{prev_row}<=0,(C{row}*D{row}+E{row})/C{row},(G{prev_row}*H{prev_row}+C{row}*D{row}+E{row})/(H{prev_row}+C{row})),IF(B{row}="卖出",IF(H{prev_row}-C{row}<=0,G{prev_row},(G{prev_row}*H{prev_row}-C{row}*D{row}+E{row})/(H{prev_row}-C{row})),""))')
+            cell = ws.cell(row=row, column=7, value=f'=IF(B{row}="买入",IF(H{next_row}<=0,(C{row}*D{row}+E{row})/C{row},(G{next_row}*H{next_row}+C{row}*D{row}+E{row})/(H{next_row}+C{row})),IF(B{row}="卖出",IF(H{next_row}-C{row}<=0,G{next_row},(G{next_row}*H{next_row}-C{row}*D{row}+E{row})/(H{next_row}-C{row})),""))')
         cell.protection = Protection(locked=True)
-        # 累计持仓公式（H列）- 卖出清仓时返回0（不能返回""，否则后续算术运算报错）
-        if row == 10:
+        # 累计持仓公式（H列）
+        if row == last_data_row:
             cell = ws.cell(row=row, column=8, value=f'=IF(B{row}="买入",C{row},IF(B{row}="卖出",-C{row},""))')
         else:
-            cell = ws.cell(row=row, column=8, value=f'=IF(B{row}="买入",H{prev_row}+C{row},IF(B{row}="卖出",MAX(0,H{prev_row}-C{row}),""))')
+            cell = ws.cell(row=row, column=8, value=f'=IF(B{row}="买入",H{next_row}+C{row},IF(B{row}="卖出",MAX(0,H{next_row}-C{row}),""))')
         cell.protection = Protection(locked=True)
-        # 当前持仓周期内累计卖出盈亏公式（I列，隐藏列）- 清仓(H=0)时重置为0
-        if row == 10:
+        # 当前持仓周期内累计卖出盈亏公式（I列，隐藏列）
+        if row == last_data_row:
             cell = ws.cell(row=row, column=9, value=f'=IF(B{row}="买入",0,IF(B{row}="卖出",IF(H{row}=0,0,F{row}),0))')
+        elif row == 104:
+            cell = ws.cell(row=row, column=9, value=f'=IF(B104="",0,IF(B104="买入",0,IF(B104="卖出",IF(H104=0,0,F104),0)))')
         else:
-            cell = ws.cell(row=row, column=9, value=f'=IF(B{row}="",I{prev_row},IF(B{row}="买入",I{prev_row},IF(B{row}="卖出",IF(H{row}=0,0,I{prev_row}+F{row}),I{prev_row})))')
+            cell = ws.cell(row=row, column=9, value=f'=IF(B{row}="",I{next_row},IF(B{row}="买入",I{next_row},IF(B{row}="卖出",IF(H{row}=0,0,I{next_row}+F{row}),I{next_row})))')
         cell.protection = Protection(locked=True)
 
     # 第8行：盈亏平衡点 = 持仓成本 - 当前周期累计卖出盈亏 ÷ 当前持仓
+    # 反转后，第10行为最新交易，持有最终累计结果
     ws.merge_cells('A8:H8')
-    ws['A8'] = '=IF(COUNTA(B10:B104)=0,"","⚖️ 盈亏平衡点: $"&TEXT(LOOKUP(2,1/(B10:B104<>""),G10:G104)-LOOKUP(2,1/(B10:B104<>""),I10:I104)/LOOKUP(2,1/(B10:B104<>""),H10:H104),"#,##0.00"))'
+    ws['A8'] = f'=IF(COUNTA(B10:B104)=0,"","⚖️ 盈亏平衡点: $"&TEXT(G10-I10/H10,"#,##0.00"))'
     ws['A8'].font = Font(bold=True, size=12, color="1F4E79")
     ws['A8'].alignment = Alignment(horizontal='center', vertical='center')
     ws['A8'].fill = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
     ws.row_dimensions[8].height = 22
     ws['A8'].protection = Protection(locked=True)
 
-    # 写入实际交易数据
-    for i, t in enumerate(transactions):
+    # 写入实际交易数据（最新日期排在最上）
+    for i, t in enumerate(reversed(transactions)):
         row = 10 + i
         ws.cell(row=row, column=1, value=parse_date(t['Date']))
         # 统一操作类型
