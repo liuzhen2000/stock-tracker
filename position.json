@@ -1,9 +1,20 @@
 {
-  "FromDate": "12/09/2025",
-  "ToDate": "06/09/2026",
-  "TotalTransactionsAmount": "$18,340.76",
-  "TotalFeesAndCommAmount": "$0.57",
+  "FromDate": "12/10/2025",
+  "ToDate": "06/10/2026",
+  "TotalTransactionsAmount": "$19,997.03",
+  "TotalFeesAndCommAmount": "$0.60",
   "BrokerageTransactions": [
+    {
+      "Date": "06/10/2026",
+      "Action": "Sell",
+      "Symbol": "AVGO",
+      "Description": "BROADCOM INC",
+      "Quantity": "4",
+      "Price": "$389.09",
+      "Fees & Comm": "$0.03",
+      "Amount": "$1,556.33",
+      "AcctgRuleCd": "2"
+    },
     {
       "Date": "06/09/2026",
       "Action": "Buy",
@@ -2356,50 +2367,6 @@
       "Price": "$491.6265",
       "Fees & Comm": "",
       "Amount": "-$24.97",
-      "AcctgRuleCd": "2"
-    },
-    {
-      "Date": "12/09/2025",
-      "Action": "Buy",
-      "Symbol": "MSFT",
-      "Description": "MICROSOFT CORP",
-      "Quantity": "0.0509",
-      "Price": "$490.5999",
-      "Fees & Comm": "",
-      "Amount": "-$24.97",
-      "AcctgRuleCd": "2"
-    },
-    {
-      "Date": "12/09/2025",
-      "Action": "Buy",
-      "Symbol": "META",
-      "Description": "META PLATFORMS INC CLASS A",
-      "Quantity": "0.038",
-      "Price": "$657.3807",
-      "Fees & Comm": "",
-      "Amount": "-$24.98",
-      "AcctgRuleCd": "2"
-    },
-    {
-      "Date": "12/09/2025",
-      "Action": "Buy",
-      "Symbol": "NVDA",
-      "Description": "NVIDIA CORP",
-      "Quantity": "0.1355",
-      "Price": "$184.4586",
-      "Fees & Comm": "",
-      "Amount": "-$24.99",
-      "AcctgRuleCd": "2"
-    },
-    {
-      "Date": "12/09/2025",
-      "Action": "Buy",
-      "Symbol": "AMZN",
-      "Description": "AMAZON.COM INC",
-      "Quantity": "0.11",
-      "Price": "$227.23",
-      "Fees & Comm": "",
-      "Amount": "-$25.00",
       "AcctgRuleCd": "2"
     }
   ]
