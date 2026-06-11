@@ -64,7 +64,7 @@ def parse_date(date_str):
 def create_stock_worksheet(ws, stock_name, transactions):
     """创建单个股票持仓记录工作表，最新日期排在最上"""
     trans_count = len(transactions)
-    last_data_row = 9 + trans_count  # 最旧交易所在行（基准行）
+    last_data_row = 6 + trans_count  # 最旧交易所在行（基准行），数据从第7行开始
 
     # 设置列宽
     ws.column_dimensions['A'].width = 12
@@ -72,16 +72,15 @@ def create_stock_worksheet(ws, stock_name, transactions):
     ws.column_dimensions['C'].width = 10
     ws.column_dimensions['D'].width = 12
     ws.column_dimensions['E'].width = 10
-    ws.column_dimensions['F'].width = 12
-    ws.column_dimensions['G'].width = 14
-    ws.column_dimensions['H'].width = 10
-    ws.column_dimensions['I'].hidden = True  # 隐藏列，用于当前持仓周期内累计卖出盈亏
+    ws.column_dimensions['F'].width = 14  # 持仓成本
+    ws.column_dimensions['G'].width = 10  # 累计持仓
+    ws.column_dimensions['H'].hidden = True  # 隐藏列，用于当前持仓周期内累计卖出盈亏
 
     # 隐藏网格线
     ws.sheet_view.showGridLines = False
 
     # 第1行：股票名称标题（动态引用工作表名称）
-    ws.merge_cells('A1:H1')
+    ws.merge_cells('A1:G1')
     ws['A1'] = '="📈 " & MID(CELL("filename",A1),FIND("]",CELL("filename",A1))+1,100) & " 持仓成本记录"'
     ws['A1'].font = stock_name_font
     ws['A1'].fill = stock_name_fill
@@ -89,65 +88,44 @@ def create_stock_worksheet(ws, stock_name, transactions):
     ws.row_dimensions[1].height = 30
 
     # 第2行：分隔行
-    ws.merge_cells('A2:H2')
+    ws.merge_cells('A2:G2')
     ws['A2'] = '-' * 80
     ws['A2'].font = Font(color="4472C4")
     ws['A2'].alignment = Alignment(horizontal='center')
     ws.row_dimensions[2].height = 12
 
-    # 第3行：公式标题
-    ws.merge_cells('A3:H3')
-    ws['A3'] = '【成本计算公式】'
-    ws['A3'].font = formula_title_font
+    # 第3行：公式说明
+    ws.merge_cells('A3:G3')
+    ws['A3'] = '🟢 买入成本 = (原成本×原股数 + 买入金额 + 手续费) ÷ (原股数 + 买入股数)  |  🔴 卖出时成本不变，清仓后重新买入按新买入价计算'
+    ws['A3'].font = Font(size=10, color="333333")
     ws['A3'].alignment = Alignment(horizontal='center')
     ws.row_dimensions[3].height = 20
 
-    # 第4行：买入公式
-    ws.merge_cells('A4:H4')
-    ws['A4'] = '🟢 买入成本 = (原成本×原股数 + 买入金额 + 手续费) ÷ (原股数 + 买入股数)'
-    ws['A4'].font = buy_formula_font
+    # 第4行：分隔行
+    ws.merge_cells('A4:G4')
+    ws['A4'] = '-' * 80
+    ws['A4'].font = Font(color="4472C4")
     ws['A4'].alignment = Alignment(horizontal='center')
-    ws.row_dimensions[4].height = 20
+    ws.row_dimensions[4].height = 12
 
-    # 第5行：卖出公式
-    ws.merge_cells('A5:H5')
-    ws['A5'] = '🔴 卖出成本 = (原成本×原股数 - 卖出金额 + 手续费) ÷ (原股数 - 卖出股数)'
-    ws['A5'].font = sell_formula_font
-    ws['A5'].alignment = Alignment(horizontal='center')
-    ws.row_dimensions[5].height = 20
-
-    # 第6行：盈亏公式
-    ws.merge_cells('A6:H6')
-    ws['A6'] = '💰 盈亏金额 = (卖出价格 - 持仓成本) × 卖出股数 - 手续费'
-    ws['A6'].font = profit_formula_font
-    ws['A6'].alignment = Alignment(horizontal='center')
-    ws.row_dimensions[6].height = 20
-
-    # 第7行：分隔行
-    ws.merge_cells('A7:H7')
-    ws['A7'] = '-' * 80
-    ws['A7'].font = Font(color="4472C4")
-    ws['A7'].alignment = Alignment(horizontal='center')
-    ws.row_dimensions[7].height = 12
-
-    # 第9行：表头
-    headers = ['日期', '操作', '股数', '价格', '手续费', '盈亏金额', '持仓成本', '累计持仓']
-    ws.row_dimensions[9].height = 22
+    # 第6行：表头
+    headers = ['日期', '操作', '数量', '价格', '手续费', '持仓成本', '累计持仓']
+    ws.row_dimensions[6].height = 22
     for col, header in enumerate(headers, 1):
-        cell = ws.cell(row=9, column=col, value=header)
+        cell = ws.cell(row=6, column=col, value=header)
         cell.font = header_font_white
         cell.fill = header_fill
         cell.alignment = Alignment(horizontal='center', vertical='center')
         cell.border = thin_border
 
-    # 设置数据区域对齐
-    for row in range(10, 105):
-        for col in range(1, 9):
+    # 设置数据区域对齐（A-G列可见，H列隐藏）
+    for row in range(7, 102):
+        for col in range(1, 8):
             ws.cell(row=row, column=col).alignment = Alignment(horizontal='center')
 
     # 设置日期格式（A列）
     date_format = 'yyyy-mm-dd'
-    for row in range(10, 105):
+    for row in range(7, 102):
         ws.cell(row=row, column=1).number_format = date_format
 
     # 添加下拉数据验证（操作列：B列）
@@ -157,12 +135,12 @@ def create_stock_worksheet(ws, stock_name, transactions):
     dv.prompt = '请从下拉列表中选择'
     dv.promptTitle = '操作类型'
     ws.add_data_validation(dv)
-    dv.add('B10:B104')
+    dv.add('B7:B101')
 
     # 条件格式：有输入数据时显示边框
     border_dxf = DifferentialStyle(border=thin_border)
-    ws.conditional_formatting.add('A10:H104',
-        Rule(type='expression', formula=['COUNTA($A10:$E10)>0'], dxf=border_dxf))
+    ws.conditional_formatting.add('A7:G101',
+        Rule(type='expression', formula=['COUNTA($A7:$E7)>0'], dxf=border_dxf))
 
     # 操作列颜色条件格式
     green_font = Font(color="006100", bold=True)
@@ -170,60 +148,54 @@ def create_stock_worksheet(ws, stock_name, transactions):
 
     green_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
     green_dxf = DifferentialStyle(font=green_font, fill=green_fill)
-    ws.conditional_formatting.add('B10:B104',
-        Rule(type='expression', formula=['B10="买入"'], dxf=green_dxf))
+    ws.conditional_formatting.add('B7:B101',
+        Rule(type='expression', formula=['B7="买入"'], dxf=green_dxf))
 
     red_fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
     red_dxf = DifferentialStyle(font=red_font, fill=red_fill)
-    ws.conditional_formatting.add('B10:B104',
-        Rule(type='expression', formula=['B10="卖出"'], dxf=red_dxf))
+    ws.conditional_formatting.add('B7:B101',
+        Rule(type='expression', formula=['B7="卖出"'], dxf=red_dxf))
 
-    # 为所有数据行（第10-104行）添加公式
+    # 为所有数据行（第7-101行）添加公式
     # 注：数据已反转（最新在最上），公式用 next_row(row+1) 反向引用
-    for row in range(10, 105):
+    for row in range(7, 102):
         next_row = row + 1
-        # 盈亏金额公式（F列）- 处理清仓后无持仓时卖出不计算盈亏
-        cell = ws.cell(row=row, column=6)
+        # F列 - 持仓成本公式
         if row == last_data_row:
-            cell.value = f'=IF(B{row}="卖出",(D{row}-G{row})*C{row}-E{row},"")'
+            cell = ws.cell(row=row, column=6, value=f'=IF(B{row}="买入",(C{row}*D{row}+E{row})/C{row},"")')
         else:
-            cell.value = f'=IF(B{row}="卖出",IF(H{next_row}<=0,"",(D{row}-G{next_row})*C{row}-E{row}),"")'
-        cell.protection = Protection(locked=True)
-        # 持仓成本公式（G列）
-        if row == last_data_row:
-            cell = ws.cell(row=row, column=7, value=f'=IF(B{row}="买入",(C{row}*D{row}+E{row})/C{row},"")')
-        else:
-            # 清仓后重新买入：用新买入价计算；有持仓时：加权平均；卖出时保持原成本
-            cell = ws.cell(row=row, column=7, value=f'=IF(B{row}="买入",IF(H{next_row}<=0,(C{row}*D{row}+E{row})/C{row},(G{next_row}*H{next_row}+C{row}*D{row}+E{row})/(H{next_row}+C{row})),IF(B{row}="卖出",IF(H{next_row}-C{row}<=0,G{next_row},(G{next_row}*H{next_row}-C{row}*D{row}+E{row})/(H{next_row}-C{row})),""))')
-        cell.protection = Protection(locked=True)
-        # 累计持仓公式（H列）
-        if row == last_data_row:
-            cell = ws.cell(row=row, column=8, value=f'=IF(B{row}="买入",C{row},IF(B{row}="卖出",-C{row},""))')
-        else:
-            cell = ws.cell(row=row, column=8, value=f'=IF(B{row}="买入",H{next_row}+C{row},IF(B{row}="卖出",MAX(0,H{next_row}-C{row}),""))')
-        cell.protection = Protection(locked=True)
-        # 当前持仓周期内累计卖出盈亏公式（I列，隐藏列）
-        if row == last_data_row:
-            cell = ws.cell(row=row, column=9, value=f'=IF(B{row}="买入",0,IF(B{row}="卖出",IF(H{row}=0,0,F{row}),0))')
-        elif row == 104:
-            cell = ws.cell(row=row, column=9, value=f'=IF(B104="",0,IF(B104="买入",0,IF(B104="卖出",IF(H104=0,0,F104),0)))')
-        else:
-            cell = ws.cell(row=row, column=9, value=f'=IF(B{row}="",I{next_row},IF(B{row}="买入",I{next_row},IF(B{row}="卖出",IF(H{row}=0,0,I{next_row}+F{row}),I{next_row})))')
+            cell = ws.cell(row=row, column=6, value=f'=IF(B{row}="买入",IF(G{next_row}<=0,(C{row}*D{row}+E{row})/C{row},(F{next_row}*G{next_row}+C{row}*D{row}+E{row})/(G{next_row}+C{row})),IF(B{row}="卖出",IF(G{next_row}-C{row}<=0,F{next_row},(F{next_row}*G{next_row}-C{row}*D{row}+E{row})/(G{next_row}-C{row})),""))')
         cell.protection = Protection(locked=True)
 
-    # 第8行：盈亏平衡点 = 持仓成本 - 当前周期累计卖出盈亏 ÷ 当前持仓
-    # 反转后，第10行为最新交易，持有最终累计结果
-    ws.merge_cells('A8:H8')
-    ws['A8'] = f'=IF(COUNTA(B10:B104)=0,"","⚖️ 盈亏平衡点: $"&TEXT(G10-IFERROR(I10/H10,0),"#,##0.00")&"  (差价: $"&TEXT(-IFERROR(I10/H10,0),"#,##0.00")&")")'
-    ws['A8'].font = Font(bold=True, size=12, color="1F4E79")
-    ws['A8'].alignment = Alignment(horizontal='center', vertical='center')
-    ws['A8'].fill = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
-    ws.row_dimensions[8].height = 22
-    ws['A8'].protection = Protection(locked=True)
+        # G列 - 累计持仓公式
+        if row == last_data_row:
+            cell = ws.cell(row=row, column=7, value=f'=IF(B{row}="买入",C{row},IF(B{row}="卖出",-C{row},""))')
+        else:
+            cell = ws.cell(row=row, column=7, value=f'=IF(B{row}="买入",G{next_row}+C{row},IF(B{row}="卖出",MAX(0,G{next_row}-C{row}),""))')
+        cell.protection = Protection(locked=True)
+
+        # H列（隐藏）- 当前持仓周期内累计卖出盈亏
+        if row == last_data_row:
+            cell = ws.cell(row=row, column=8, value=f'=IF(B{row}="买入",0,IF(B{row}="卖出",IF(G{row}=0,0,(D{row}-F{row})*C{row}-E{row}),0))')
+        elif row == 101:
+            cell = ws.cell(row=row, column=8, value=f'=IF(B101="",0,IF(B101="买入",0,IF(B101="卖出",IF(G101=0,0,(D101-F101)*C101-E101),0)))')
+        else:
+            cell = ws.cell(row=row, column=8, value=f'=IF(B{row}="",H{next_row},IF(B{row}="买入",H{next_row},IF(B{row}="卖出",IF(G{row}=0,0,H{next_row}+(D{row}-F{row})*C{row}-E{row}),H{next_row})))')
+        cell.protection = Protection(locked=True)
+
+    # 第5行：盈亏平衡点 = 持仓成本 - 当前周期累计卖出盈亏 ÷ 当前持仓
+    # 反转后，第7行为最新交易，持有最终累计结果
+    ws.merge_cells('A5:G5')
+    ws['A5'] = f'=IF(COUNTA(B7:B101)=0,"","⚖️ 盈亏平衡点: $"&TEXT(F7-IFERROR(H7/G7,0),"#,##0.00")&"  (差价: $"&TEXT(-IFERROR(H7/G7,0),"#,##0.00")&")")'
+    ws['A5'].font = Font(bold=True, size=12, color="1F4E79")
+    ws['A5'].alignment = Alignment(horizontal='center', vertical='center')
+    ws['A5'].fill = PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid")
+    ws.row_dimensions[5].height = 22
+    ws['A5'].protection = Protection(locked=True)
 
     # 写入实际交易数据（最新日期排在最上）
     for i, t in enumerate(reversed(transactions)):
-        row = 10 + i
+        row = 7 + i
         ws.cell(row=row, column=1, value=parse_date(t['Date']))
         # 统一操作类型
         action = t['Action']
@@ -239,7 +211,7 @@ def create_stock_worksheet(ws, stock_name, transactions):
         ws.cell(row=row, column=5, value=parse_fee(t.get('Fees & Comm', '')))
 
     # 设置可编辑区域（A-E列）为未锁定
-    for row in range(10, 105):
+    for row in range(7, 102):
         for col in range(1, 6):
             cell = ws.cell(row=row, column=col)
             cell.protection = Protection(locked=False)
