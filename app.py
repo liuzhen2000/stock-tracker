@@ -40,9 +40,6 @@ st.markdown("""
 .metric-color { color: #000; }
 .desc-color { color: #555; }
 
-/* 盈亏标签 */
-.loss { color: #ef4444 !important; font-weight: bold; }
-.profit { color: #22c55e !important; font-weight: bold; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -109,7 +106,6 @@ def load_data():
         records = []
         running_qty = 0.0
         running_cost = 0.0
-        cycle_sell_profit = 0.0  # 当前持仓周期内的累计卖出盈亏，清仓时重置
 
         for _, t in stock_trades:
             date = parse_date(t['Date'])
@@ -118,8 +114,6 @@ def load_data():
             price = parse_price(t['Price'])
             fee = parse_fee(t.get('Fees & Comm', ''))
 
-            prev_qty = running_qty
-
             if action == '买入':
                 if running_qty <= 0:
                     running_cost = (qty * price + fee) / qty if qty > 0 else 0
@@ -127,29 +121,9 @@ def load_data():
                     running_cost = (running_cost * running_qty + qty * price + fee) / (running_qty + qty)
                 running_qty += qty
             else:  # 卖出
-                profit = (price - running_cost) * qty - fee
-
-                if running_qty - qty <= 0:
-                    # 清仓：重置周期累计盈亏
-                    running_qty = 0
-                    cycle_sell_profit = 0.0
-                else:
-                    # 部分卖出：重新计算持仓成本
+                if running_qty - qty > 0:
                     running_cost = (running_cost * running_qty - qty * price + fee) / (running_qty - qty)
-                    running_qty -= qty
-                    cycle_sell_profit += profit
-
-                records.append({
-                    'date': date,
-                    'action': action,
-                    'qty': qty,
-                    'price': price,
-                    'fee': fee,
-                    'profit': profit,
-                    'cost': running_cost,
-                    'holding': running_qty,
-                })
-                continue
+                running_qty = max(0, running_qty - qty)
 
             records.append({
                 'date': date,
@@ -157,23 +131,15 @@ def load_data():
                 'qty': qty,
                 'price': price,
                 'fee': fee,
-                'profit': None,
                 'cost': running_cost,
                 'holding': running_qty,
             })
-
-        # 盈亏平衡点 = 持仓成本 - 当前周期累计卖出盈亏 / 当前股数
-        if running_qty > 0 and running_cost > 0:
-            break_even = running_cost - cycle_sell_profit / running_qty
-        else:
-            break_even = None
 
         result.append({
             'symbol': symbol,
             'description': description,
             'holding': running_qty,
             'cost': running_cost,
-            'break_even': break_even,
             'records': records,
         })
 
@@ -203,17 +169,12 @@ tabs = st.tabs(symbols)
 for idx, stock in enumerate(data):
     with tabs[idx]:
         # ─── 股票头部（手机友好）───
-        be_color = "#00B050" if stock['break_even'] and stock['cost'] and stock['break_even'] <= stock['cost'] else "#FF0000"
-        be_text = f"${stock['break_even']:.2f}" if stock['break_even'] else "-"
-        delta_text = f"({stock['break_even'] - stock['cost']:+.2f})" if stock['break_even'] and stock['cost'] else ""
-        
         stock_header = f"""
         <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 0;">
             <span class="sym-color" style="font-size:22px;font-weight:bold;">{stock['symbol']}</span>
             <span class="desc-color" style="font-size:12px">{stock['description']}</span>
             <span class="metric-color" style="font-size:14px;margin-left:auto"><b>成本</b> ${stock['cost']:.2f}</span>
             <span class="metric-color" style="font-size:14px"><b>持仓</b> {stock['holding']:.2f} 股</span>
-            <span style="font-size:14px;color:{be_color}"><b>盈亏平衡</b> {be_text} <span style="font-size:12px;color:{be_color}">{delta_text}</span></span>
         </div>
         """
         st.markdown(stock_header, unsafe_allow_html=True)
@@ -225,7 +186,6 @@ for idx, stock in enumerate(data):
             for i, r in enumerate(reversed(stock['records'])):
                 action_color = "#006100" if r['action'] == '买入' else "#9C0006"
                 action_bg = "#C6EFCE" if r['action'] == '买入' else "#FFC7CE"
-                profit_symbol = "💰" if r['profit'] is not None else ""
                 
                 # 卡片容器
                 card_html = f"""
@@ -243,7 +203,6 @@ for idx, stock in enumerate(data):
                                 padding-top:4px;border-top:1px dashed;">
                         <span class="card-text-default"><b>成本</b> ${r['cost']:.2f}</span>
                         <span class="card-text-default"><b>持仓</b> {r['holding']:.2f} 股</span>
-                        <span>{f'<span class="profit">盈亏 ${r["profit"]:.2f}</span>' if r['profit'] is not None and r['profit']>=0 else f'<span class="loss">盈亏 ${r["profit"]:.2f}</span>' if r['profit'] is not None else '<span style="color:#999">-</span>'}</span>
                     </div>
                 </div>
                 """
