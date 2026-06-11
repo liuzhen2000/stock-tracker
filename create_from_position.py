@@ -268,10 +268,12 @@ def main():
         ws = wb.create_sheet(title=sheet_name)
         create_stock_worksheet(ws, symbol, stock_trades)
 
-    # 保存文件
-    output_path = r'C:\Users\LiuZhen\Desktop\code\trae\stock\stock_portfolio_tracker.xlsx'
+    # 保存文件到WPS云盘（自动同步到手机）
+    wps_dir = r'C:\Users\LiuZhen\WPSDrive\635499075\WPS云盘'
+    output_path = os.path.join(wps_dir, 'stock_portfolio_tracker.xlsx')
     wb.save(output_path)
     print(f"\n股票持仓成本记录表已创建：{output_path}")
+    print(f"📱 打开手机WPS即可查看（已同步到WPS云盘）")
 
 
 if __name__ == '__main__':
