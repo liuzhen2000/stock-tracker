@@ -1,9 +1,31 @@
 {
-  "FromDate": "12/10/2025",
-  "ToDate": "06/10/2026",
-  "TotalTransactionsAmount": "$20,036.93",
-  "TotalFeesAndCommAmount": "$0.70",
+  "FromDate": "12/11/2025",
+  "ToDate": "06/11/2026",
+  "TotalTransactionsAmount": "$20,199.76",
+  "TotalFeesAndCommAmount": "$0.77",
   "BrokerageTransactions": [
+    {
+      "Date": "06/11/2026",
+      "Action": "Sell",
+      "Symbol": "AVGO",
+      "Description": "BROADCOM INC",
+      "Quantity": "9",
+      "Price": "$379.00",
+      "Fees & Comm": "$0.07",
+      "Amount": "$3,410.93",
+      "AcctgRuleCd": "2"
+    },
+    {
+      "Date": "06/10/2026",
+      "Action": "Buy",
+      "Symbol": "AVGO",
+      "Description": "BROADCOM INC",
+      "Quantity": "9",
+      "Price": "$372.00",
+      "Fees & Comm": "",
+      "Amount": "-$3,348.00",
+      "AcctgRuleCd": "2"
+    },
     {
       "Date": "06/10/2026",
       "Action": "Sell",
@@ -2367,50 +2389,6 @@
       "Price": "$654.20",
       "Fees & Comm": "",
       "Amount": "-$24.99",
-      "AcctgRuleCd": "2"
-    },
-    {
-      "Date": "12/10/2025",
-      "Action": "Buy",
-      "Symbol": "NVDA",
-      "Description": "NVIDIA CORP",
-      "Quantity": "0.1351",
-      "Price": "$184.92",
-      "Fees & Comm": "",
-      "Amount": "-$24.98",
-      "AcctgRuleCd": "2"
-    },
-    {
-      "Date": "12/10/2025",
-      "Action": "Buy",
-      "Symbol": "MSFT",
-      "Description": "MICROSOFT CORP",
-      "Quantity": "0.0519",
-      "Price": "$480.9335",
-      "Fees & Comm": "",
-      "Amount": "-$24.96",
-      "AcctgRuleCd": "2"
-    },
-    {
-      "Date": "12/10/2025",
-      "Action": "Buy",
-      "Symbol": "META",
-      "Description": "META PLATFORMS INC CLASS A",
-      "Quantity": "0.0384",
-      "Price": "$650.7499",
-      "Fees & Comm": "",
-      "Amount": "-$24.99",
-      "AcctgRuleCd": "2"
-    },
-    {
-      "Date": "12/10/2025",
-      "Action": "Buy",
-      "Symbol": "BRKB",
-      "Description": "BERKSHIRE HATHAWAY CLASS CLASS B",
-      "Quantity": "0.0508",
-      "Price": "$491.6265",
-      "Fees & Comm": "",
-      "Amount": "-$24.97",
       "AcctgRuleCd": "2"
     }
   ]
